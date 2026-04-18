@@ -215,7 +215,7 @@ git clone https://github.com/YOUR_USERNAME/harmonicaguru.git
 Musician and creator of HarmonicaGuru
 
 YouTube: [https://youtube.com/@Acoustic_Bihari](https://youtube.com/@Acoustic_Bihari)
-GitHub: [https://github.com/YOUR_USERNAME](https://github.com/YOUR_USERNAME)
+GitHub: [https://github.com/YOUR_USERNAME](https://github.com/kumarvmcshubham)
 
 Built as a weekend project to make harmonica learning more accessible for Indian learners.
 
