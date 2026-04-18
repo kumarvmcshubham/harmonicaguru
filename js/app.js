@@ -1,7 +1,7 @@
 // js/app.js
 // HarmonicaGuru — Main App Controller
 
-import { signInWithGoogle, watchAuthState, getUserData } from './auth.js';
+import { signInWithGoogle, watchAuthState, getUserData, signOutUser } from './auth.js';
 import { initTimer, getTimerDisplayText, getTimerColorClass, isLimitReached } from './timer.js';
 import { initPractice } from './practice.js';
 import { initSongs, showSongPaywall } from './songs.js';
@@ -47,12 +47,16 @@ watchAuthState(
     currentUser = null;
     userData    = null;
     document.getElementById('bottomNav').style.display = 'none';
+    // Hide loading screen — show login
+    document.getElementById('screen-loading').style.display = 'none';
     showScreen('login');
   }
 );
 
 // ── On User Ready ─────────────────────────────────────────────────────
 async function onUserReady() {
+  // Hide loading screen
+  document.getElementById('screen-loading').style.display = 'none';
   document.getElementById('bottomNav').style.display = 'flex';
 
   const name = currentUser.displayName?.split(' ')[0] || 'Dost';
@@ -87,6 +91,9 @@ async function onUserReady() {
     showScreen('home');
   }
 
+  // Wire greeting → profile sheet
+  document.getElementById('homeGreeting').onclick = () => showProfileSheet();
+
   // Show dev reset button only for master account
   const devBtn = document.getElementById('btnDevReset');
   if (devBtn) {
@@ -94,6 +101,33 @@ async function onUserReady() {
   }
   showAdminIfMaster();
 }
+
+// ── Profile Sheet ─────────────────────────────────────────────────────
+function showProfileSheet() {
+  const sheet = document.getElementById('profileSheet');
+  if (!sheet) return;
+  // Fill name and email
+  const nameEl  = document.getElementById('profileName');
+  const emailEl = document.getElementById('profileEmail');
+  if (nameEl)  nameEl.textContent  = currentUser?.displayName || 'HarmonicaGuru User';
+  if (emailEl) emailEl.textContent = currentUser?.email || '';
+  sheet.style.display = 'flex';
+}
+
+document.getElementById('btnCloseProfile')?.addEventListener('click', () => {
+  document.getElementById('profileSheet').style.display = 'none';
+});
+
+document.getElementById('profileChangHarmonica')?.addEventListener('click', () => {
+  document.getElementById('profileSheet').style.display = 'none';
+  showScreen('harmonica-select');
+});
+
+document.getElementById('btnSignOut')?.addEventListener('click', async () => {
+  document.getElementById('profileSheet').style.display = 'none';
+  await signOutUser();
+  // Auth state change will handle redirect to login
+});
 
 // ── Harmonica Badge ───────────────────────────────────────────────────
 function updateHarmonicaBadge() {

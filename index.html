@@ -12,8 +12,19 @@
 </head>
 <body>
 
+  <!-- ── SCREEN: LOADING ──────────────────────────── -->
+  <div id="screen-loading" class="screen active">
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100dvh;background:#0A1628;gap:20px">
+      <div style="font-family:'Baloo 2',cursive;font-size:1.8rem;font-weight:800;color:#fff">
+        Harmonica<span style="color:#F4600C">Guru</span>
+      </div>
+      <div style="width:36px;height:36px;border:3px solid rgba(244,96,12,0.2);border-top-color:#F4600C;border-radius:50%;animation:spin 0.8s linear infinite"></div>
+      <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+    </div>
+  </div>
+
   <!-- ── SCREEN: LOGIN ─────────────────────────────── -->
-  <div id="screen-login" class="screen active">
+  <div id="screen-login" class="screen">
     <div class="login-wrap">
       <div class="login-logo">Harmonica<span>Guru</span></div>
       <div class="login-tagline">AI Sunti Hai, Sikhati Hai</div>
@@ -60,7 +71,7 @@
       <div class="app-logo">Harmonica<span>Guru</span></div>
       <div id="tokenPill" class="token-pill">🤖 0</div>
     </div>
-    <div class="home-greeting" id="homeGreeting">Namaste! 👋</div>
+    <div class="home-greeting" id="homeGreeting" style="cursor:pointer">Namaste! 👋</div>
     <div class="harmonica-badge-row">
       <span class="harmonica-badge" id="harmonicaBadge">🎵 10-Hole Diatonic</span>
       <button class="btn-change-harmonica" id="btnChangeHarmonica">Change</button>
@@ -327,6 +338,29 @@
     </div>
     <div id="adminContent" style="padding:16px 16px 80px">
       <div class="admin-loading">Loading stats...</div>
+    </div>
+  </div>
+
+  <!-- ── PROFILE SHEET ────────────────────────────── -->
+  <div id="profileSheet" class="modal-backdrop" style="display:none">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div style="padding:4px 4px 8px">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
+          <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#F4600C,#F5C518);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0">🎵</div>
+          <div>
+            <div id="profileName" style="font-family:'Baloo 2',cursive;font-size:1rem;font-weight:800;color:#fff"></div>
+            <div id="profileEmail" style="font-size:0.75rem;color:#7A8FA6;margin-top:2px"></div>
+          </div>
+        </div>
+        <button id="profileChangHarmonica" style="width:100%;padding:13px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:#1A2D47;color:#fff;font-family:'Baloo 2',cursive;font-size:0.92rem;font-weight:700;cursor:pointer;text-align:left;margin-bottom:10px">
+          🎵 Harmonica Type Change Karo
+        </button>
+        <button id="btnSignOut" style="width:100%;padding:13px;border-radius:12px;border:1px solid rgba(220,38,38,0.3);background:rgba(220,38,38,0.08);color:#dc2626;font-family:'Baloo 2',cursive;font-size:0.92rem;font-weight:700;cursor:pointer;margin-bottom:10px">
+          Sign Out
+        </button>
+        <button class="btn-modal-close" id="btnCloseProfile">Baad mein</button>
+      </div>
     </div>
   </div>
 
