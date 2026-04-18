@@ -373,10 +373,13 @@ function showSubscribeSheet() {
        target="_blank" class="btn-whatsapp">
       💬 Subscribe karo — ₹99/month
     </a>
-    <div class="unlock-code-section">
+      <div class="unlock-code-section">
       <div class="unlock-code-label">Code mila? Yahan daalo:</div>
-      <input type="number" id="unlockCodeInput"
-             class="unlock-code-input" placeholder="4-digit code" maxlength="4" />
+      <input type="text" id="unlockCodeInput"
+             class="unlock-code-input"
+             placeholder="e.g. A3F7X2"
+             maxlength="10"
+             style="text-transform:uppercase;letter-spacing:4px" />
       <button id="btnSubmitCode" class="btn-submit-code">Unlock Karo ✓</button>
       <div id="unlockCodeError" class="unlock-code-error"></div>
     </div>
@@ -417,10 +420,13 @@ export function showUnlockModal(feature) {
     <div class="unlock-desc">${f.desc}</div>
     <a href="https://wa.me/917992414776?text=${waMsg}"
        target="_blank" class="btn-whatsapp">💬 WhatsApp Pe Unlock Karo</a>
-    <div class="unlock-code-section">
+      <div class="unlock-code-section">
       <div class="unlock-code-label">Code mila? Yahan daalo:</div>
-      <input type="number" id="unlockCodeInput"
-             class="unlock-code-input" placeholder="4-digit code" maxlength="4" />
+      <input type="text" id="unlockCodeInput"
+             class="unlock-code-input"
+             placeholder="e.g. A3F7X2"
+             maxlength="10"
+             style="text-transform:uppercase;letter-spacing:4px" />
       <button id="btnSubmitCode" class="btn-submit-code">Unlock Karo ✓</button>
       <div id="unlockCodeError" class="unlock-code-error"></div>
     </div>
@@ -439,8 +445,8 @@ async function validateCode(code, errDivOverride) {
   const errDiv = errDivOverride || document.getElementById('unlockCodeError');
   if (!errDiv) return;
 
-  // Trim whitespace
-  code = (code || '').trim();
+  // Trim and uppercase
+  code = (code || '').trim().toUpperCase();
   if (!code) {
     errDiv.textContent = 'Code daalo pehle.';
     errDiv.style.color = '#dc2626';
@@ -694,10 +700,13 @@ function showCreditsSheet() {
       WhatsApp pe order karo → UPI pe pay karo → code milega → app mein daalo
     </div>
 
-    <div class="unlock-code-section">
+      <div class="unlock-code-section">
       <div class="unlock-code-label">Code mila? Yahan daalo:</div>
-      <input type="number" id="unlockCodeInput"
-             class="unlock-code-input" placeholder="4-digit code" maxlength="10" />
+      <input type="text" id="unlockCodeInput"
+             class="unlock-code-input"
+             placeholder="e.g. A3F7X2"
+             maxlength="10"
+             style="text-transform:uppercase;letter-spacing:4px" />
       <button id="btnSubmitCode" class="btn-submit-code">Unlock Karo ✓</button>
       <div id="unlockCodeError" class="unlock-code-error"></div>
     </div>
@@ -903,10 +912,9 @@ async function generateCode() {
     entry = { type: 'song', songId: typeVal.split('_')[1] };
   }
 
-  // Generate random 6-char alphanumeric code e.g. "HG-A3F7"
+  // Generate random 6-char alphanumeric code e.g. "A3F7X2"
   const chars  = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  const rand   = Array.from({length: 6}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-  const code   = `HG-${rand}`;
+  const code   = Array.from({length: 6}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
 
   // Expiry — 30 days
   const expiry = new Date();
