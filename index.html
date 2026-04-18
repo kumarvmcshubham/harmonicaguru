@@ -9,6 +9,11 @@
   <link rel="stylesheet" href="css/main.css" />
   <link rel="stylesheet" href="css/lesson.css" />
   <link rel="manifest" href="manifest.json" />
+  <style>
+    /* Safety — login never shows until JS explicitly activates it */
+    #screen-login { display: none !important; }
+    #screen-login.active { display: flex !important; }
+  </style>
 </head>
 <body>
 
