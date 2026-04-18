@@ -1,0 +1,363 @@
+/* css/main.css — HarmonicaGuru Global Styles */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:     #0A1628;
+  --navy2:    #111F35;
+  --navy3:    #1A2D47;
+  --saffron:  #F4600C;
+  --saffron2: #FF7A2F;
+  --gold:     #F5C518;
+  --cream:    #FAF7F2;
+  --cream2:   #EDE8DF;
+  --green:    #22C55E;
+  --muted:    #7A8FA6;
+  --purple:   #B388FF;
+  --teal:     #26C6DA;
+  --white:    #FFFFFF;
+  --font-h:   'Baloo 2', cursive;
+  --font-b:   'DM Sans', sans-serif;
+}
+
+html, body {
+  height: 100%;
+  background: var(--navy);
+  color: var(--white);
+  font-family: var(--font-b);
+  overflow-x: hidden;
+}
+
+/* ── SCREENS ── */
+.screen {
+  display: none;
+  flex-direction: column;
+  min-height: 100dvh;
+  padding-bottom: calc(64px + env(safe-area-inset-bottom));
+}
+.screen.active { display: flex; }
+
+/* ── HEADER ── */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: var(--navy);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.app-logo {
+  font-family: var(--font-h);
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--white);
+}
+.app-logo span, .app-logo-sm span { color: var(--saffron); }
+.app-logo-sm {
+  font-family: var(--font-h);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--white);
+}
+.btn-back {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  min-width: 40px;
+  min-height: 40px;
+}
+
+/* ── TOKEN PILL ── */
+.token-pill {
+  background: var(--saffron);
+  color: var(--white);
+  font-family: var(--font-h);
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 50px;
+}
+
+/* ── LOGIN SCREEN ── */
+.login-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: 40px 24px;
+  text-align: center;
+  background: var(--navy);
+}
+.login-logo {
+  font-family: var(--font-h);
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: var(--white);
+  margin-bottom: 8px;
+}
+.login-logo span { color: var(--saffron); }
+.login-tagline {
+  font-family: var(--font-h);
+  font-size: 1.1rem;
+  color: var(--saffron);
+  margin-bottom: 8px;
+}
+.login-sub {
+  font-size: 0.88rem;
+  color: var(--muted);
+  margin-bottom: 48px;
+  line-height: 1.6;
+}
+.btn-google {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--white);
+  color: #1a1a1a;
+  border: none;
+  border-radius: 50px;
+  padding: 14px 28px;
+  font-family: var(--font-h);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-google:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+.btn-google:disabled { opacity: 0.6; cursor: not-allowed; }
+.login-error { color: #dc2626; font-size: 0.85rem; margin-top: 16px; min-height: 20px; }
+
+/* ── HOME SCREEN ── */
+#screen-home { padding: 0 0 80px; background: var(--navy); }
+.home-greeting {
+  font-family: var(--font-h);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--white);
+  padding: 16px 20px 8px;
+}
+.section-card {
+  margin: 8px 16px;
+  background: var(--navy2);
+  border-radius: 14px;
+  padding: 14px 16px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.section-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin-bottom: 10px;
+  font-family: var(--font-b);
+}
+
+/* ── KEY ROW ── */
+.key-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.key-btn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: var(--navy3);
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-family: var(--font-h);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  min-height: 36px;
+}
+.key-btn.active {
+  background: var(--saffron);
+  border-color: var(--saffron);
+  color: var(--white);
+}
+.key-btn.locked { opacity: 0.5; }
+
+/* ── FEATURE CARDS ── */
+.feature-cards { padding: 8px 16px; display: flex; flex-direction: column; gap: 10px; }
+.feature-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--navy2);
+  border-radius: 14px;
+  padding: 16px;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-left: 4px solid var(--saffron);
+  cursor: pointer;
+  transition: transform 0.15s;
+  min-height: 72px;
+}
+.feature-card:active { transform: scale(0.98); }
+.fc-icon { font-size: 1.6rem; flex-shrink: 0; }
+.fc-content { flex: 1; }
+.fc-title { font-family: var(--font-h); font-size: 1rem; font-weight: 700; color: var(--white); }
+.fc-sub { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+.fc-arrow { color: var(--muted); font-size: 1.2rem; }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--navy2);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  height: calc(60px + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 50;
+}
+.nav-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  transition: color 0.15s;
+  min-height: 60px;
+}
+.nav-tab.active { color: var(--saffron); }
+.nav-icon { font-size: 1.2rem; }
+.nav-label { font-size: 0.65rem; font-family: var(--font-b); font-weight: 500; }
+
+/* ── MODAL / UNLOCK SHEET ── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: flex-end;
+  z-index: 100;
+}
+.modal-sheet {
+  background: var(--navy2);
+  border-radius: 24px 24px 0 0;
+  padding: 16px 20px 32px;
+  width: 100%;
+  max-height: 80dvh;
+  overflow-y: auto;
+}
+.modal-handle {
+  width: 40px;
+  height: 4px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 2px;
+  margin: 0 auto 20px;
+}
+.unlock-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.unlock-title {
+  font-family: var(--font-h);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--white);
+  flex: 1;
+}
+.unlock-price {
+  font-family: var(--font-h);
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--saffron);
+}
+.unlock-desc {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+.btn-whatsapp {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px;
+  background: #25D366;
+  color: var(--white);
+  border-radius: 12px;
+  font-family: var(--font-h);
+  font-weight: 700;
+  font-size: 1rem;
+  text-decoration: none;
+  margin-bottom: 20px;
+}
+.unlock-code-section { margin-bottom: 16px; }
+.unlock-code-label {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.unlock-code-input {
+  width: 100%;
+  background: var(--navy3);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: var(--white);
+  font-family: var(--font-h);
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 8px;
+  margin-bottom: 10px;
+  outline: none;
+}
+.unlock-code-input:focus { border-color: var(--saffron); }
+.btn-submit-code {
+  width: 100%;
+  padding: 13px;
+  background: var(--saffron);
+  color: var(--white);
+  border: none;
+  border-radius: 10px;
+  font-family: var(--font-h);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+.unlock-code-error {
+  font-size: 0.8rem;
+  color: #dc2626;
+  margin-top: 8px;
+  min-height: 18px;
+}
+.btn-modal-close {
+  width: 100%;
+  padding: 12px;
+  background: none;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  color: var(--muted);
+  font-family: var(--font-b);
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-top: 8px;
+}
+/* ── TIMER COLORS ── */
+.timer-green { color: var(--green); }
+.timer-amber { color: var(--gold); }
+.timer-red   { color: #dc2626; font-weight: 600; }
+.timer-zero  { color: var(--muted); }

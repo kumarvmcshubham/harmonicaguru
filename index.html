@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#F4600C" />
+  <title>HarmonicaGuru — AI Sunti Hai, Sikhati Hai</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/lesson.css" />
+  <link rel="manifest" href="manifest.json" />
+</head>
+<body>
+
+  <!-- ── SCREEN: LOGIN ─────────────────────────────── -->
+  <div id="screen-login" class="screen active">
+    <div class="login-wrap">
+      <div class="login-logo">Harmonica<span>Guru</span></div>
+      <div class="login-tagline">AI Sunti Hai, Sikhati Hai</div>
+      <div class="login-sub">Apna harmonica uthao — AI guide karegi</div>
+      <button id="btnGoogleSignIn" class="btn-google">
+        <svg width="20" height="20" viewBox="0 0 48 48">
+          <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.2l6.8-6.8C35.8 2.4 30.2 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13 17.8 9.5 24 9.5z"/>
+          <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17z"/>
+          <path fill="#FBBC05" d="M10.6 28.6A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.1.8-4.6L2.4 13.3A23.9 23.9 0 0 0 0 24c0 3.8.9 7.4 2.4 10.7l8.2-6.1z"/>
+          <path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.5-5.8c-2 1.4-4.6 2.2-7.7 2.2-6.2 0-11.5-4.2-13.4-9.9l-8.2 6.1C6.5 42.5 14.6 48 24 48z"/>
+        </svg>
+        Google se Sign In Karo
+      </button>
+      <div id="loginError" class="login-error"></div>
+    </div>
+  </div>
+
+  <!-- ── SCREEN: HARMONICA SELECTOR ───────────────── -->
+  <div id="screen-harmonica-select" class="screen">
+    <div class="hsel-wrap">
+      <div class="hsel-title">Aapka Harmonica<br>Kaun Sa Hai?</div>
+      <div class="hsel-sub">Ek baar select karo — app usi ke hisaab se set ho jaayegi</div>
+      <div class="hsel-cards">
+        <div class="hsel-card" id="hselDiatonic">
+          <div class="hsel-img">🎵</div>
+          <div class="hsel-card-title">10-Hole Diatonic</div>
+          <div class="hsel-card-desc">Hohner, Suzuki — most common beginner harmonica. 10 holes, single key.</div>
+          <div class="hsel-card-eg">e.g. Hohner Special 20, Suzuki Harpmaster</div>
+        </div>
+        <div class="hsel-card" id="hselTower">
+          <div class="hsel-img">🎶</div>
+          <div class="hsel-card-title">24-Hole Chromatic</div>
+          <div class="hsel-card-desc">Tower model — 24 holes, 3 octaves. Common in India.</div>
+          <div class="hsel-card-eg">e.g. Tower M1015, Swan 24-hole</div>
+        </div>
+      </div>
+      <button class="hsel-skip" id="hselSkip">Pata nahi — diatonic se shuru karo</button>
+    </div>
+  </div>
+
+  <!-- ── SCREEN: HOME ──────────────────────────────── -->
+  <div id="screen-home" class="screen">
+    <div class="app-header">
+      <div class="app-logo">Harmonica<span>Guru</span></div>
+      <div id="tokenPill" class="token-pill">🤖 0</div>
+    </div>
+    <div class="home-greeting" id="homeGreeting">Namaste! 👋</div>
+    <div class="harmonica-badge-row">
+      <span class="harmonica-badge" id="harmonicaBadge">🎵 10-Hole Diatonic</span>
+      <button class="btn-change-harmonica" id="btnChangeHarmonica">Change</button>
+    </div>
+    <div class="section-card">
+      <div class="section-label">Apna Harmonica Key</div>
+      <div class="key-row" id="keyRow"></div>
+    </div>
+    <div class="feature-cards">
+      <div class="feature-card" id="cardPractice">
+        <div class="fc-icon">🎵</div>
+        <div class="fc-content">
+          <div class="fc-title">Sargam Practice</div>
+          <div class="fc-sub" id="timerDisplay">Free Practice: 20:00 remaining</div>
+        </div>
+        <div class="fc-arrow">→</div>
+      </div>
+      <div class="feature-card" id="cardSongs">
+        <div class="fc-icon">🎼</div>
+        <div class="fc-content">
+          <div class="fc-title">Song Lessons</div>
+          <div class="fc-sub">1 available · 3 coming soon</div>
+        </div>
+        <div class="fc-arrow">→</div>
+      </div>
+      <div class="feature-card" id="cardRequest">
+        <div class="fc-icon">☕</div>
+        <div class="fc-content">
+          <div class="fc-title">Sargam Request</div>
+          <div class="fc-sub">₹49 — Koi bhi song</div>
+        </div>
+        <div class="fc-arrow">→</div>
+      </div>
+    </div>
+
+    <!-- DEV ONLY — remove before launch -->
+    <div style="padding:8px 16px 80px">
+      <button id="btnDevReset" style="width:100%;padding:10px;border-radius:10px;border:1px dashed rgba(255,255,255,0.2);background:none;color:var(--muted);font-size:0.75rem;cursor:pointer;font-family:var(--font-b);margin-bottom:8px">
+        🔧 Dev: Reset to Free Tier
+      </button>
+      <button id="btnAdminDash" style="width:100%;padding:10px;border-radius:10px;border:1px dashed rgba(244,96,12,0.3);background:none;color:var(--saffron);font-size:0.75rem;cursor:pointer;font-family:var(--font-b)">
+        📊 Admin Dashboard
+      </button>
+    </div>
+  </div>
+
+  <!-- ── SCREEN: PRACTICE ──────────────────────────── -->
+  <div id="screen-practice" class="screen">
+    <div class="app-header">
+      <button class="btn-back" id="btnBackFromPractice">←</button>
+      <div class="app-logo-sm">Sargam Practice</div>
+      <div class="header-right">
+        <button class="btn-voice" id="btnVoice" title="Voice Settings">🔊</button>
+        <div id="tokenPillPractice" class="token-pill">🤖 0</div>
+      </div>
+    </div>
+    <div class="mode-tabs" id="modeTabs">
+      <button class="mode-tab active" data-mode="scale">Full Scale</button>
+      <button class="mode-tab locked" data-mode="two">2-Note 🔒</button>
+      <button class="mode-tab locked" data-mode="three">3-Note 🔒</button>
+      <button class="mode-tab locked" data-mode="four">4-Note 🔒</button>
+    </div>
+
+    <!-- Scale direction — only for Full Scale mode -->
+    <div id="scaleDirRow" class="direction-toggle" style="padding:6px 16px 0">
+      <button class="dir-btn active" data-scale-dir="up">↑ Sa to Sa'</button>
+      <button class="dir-btn" data-scale-dir="down">↓ Sa' to Sa</button>
+      <button class="dir-btn" data-scale-dir="both">↕ Both</button>
+    </div>
+    <div id="towerOctaveRow" class="octave-row" style="display:none">
+      <button class="octave-btn" data-octave="lower">Lower</button>
+      <button class="octave-btn active" data-octave="middle">Middle</button>
+      <button class="octave-btn" data-octave="upper">Upper</button>
+    </div>
+    <div class="timer-bar">
+      <span id="practiceTimerText" class="timer-green">Free Practice: 20:00 remaining</span>
+    </div>
+    <div id="groupSelector" style="display:none">
+      <div class="group-scroll" id="groupScroll"></div>
+      <div class="direction-toggle">
+        <button class="dir-btn active" data-dir="up">↑ Up</button>
+        <button class="dir-btn" data-dir="down">↓ Down</button>
+        <button class="dir-btn" data-dir="both">↕ Both</button>
+      </div>
+    </div>
+    <div class="note-card" id="noteCard">
+      <div class="note-card-band blow" id="noteCardBand">↑ Blow</div>
+      <div class="note-card-sargam" id="noteCardSargam">Sa</div>
+      <div class="note-card-hole" id="noteCardHole">Hole 4 · Middle Octave</div>
+    </div>
+    <div class="progress-strip" id="progressStrip"></div>
+    <div class="action-btns">
+      <button class="btn-listen" id="btnListen">🎵 Suno Pehle</button>
+      <button class="btn-start" id="btnStart">🎙 Shuru Karo</button>
+    </div>
+    <div class="detect-box">
+      <div class="detect-ring-wrap">
+        <div class="detect-ring" id="detectRing">
+          <div class="detect-note" id="detectNote">—</div>
+        </div>
+      </div>
+      <div class="detect-status" id="detectStatus">Shuru karo dabao...</div>
+    </div>
+    <div class="signal-bar-wrap">
+      <div class="signal-bar-header">
+        <span class="signal-label-title">App Ki Awaaz</span>
+        <span class="signal-label" id="signalLabel">Start playing...</span>
+      </div>
+      <div class="signal-track">
+        <div class="signal-fill" id="signalBar" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="timer-paywall" id="timerPaywall" style="display:none">
+      <div class="paywall-text">Free Practice: Done for today</div>
+      <div class="paywall-sub">Kal wapas aao — ya unlock karo unlimited practice</div>
+      <button class="btn-paywall" id="btnTimerPaywall">Subscribe ₹99/month</button>
+    </div>
+  </div>
+
+  <!-- ── SCREEN: SONGS CATALOG ─────────────────────── -->
+  <div id="screen-songs" class="screen">
+    <div class="app-header">
+      <button class="btn-back" id="btnBackFromSongs">←</button>
+      <div class="app-logo-sm">Song Lessons</div>
+      <div class="token-pill" id="tokenPillSongs">🤖 0</div>
+    </div>
+    <div class="songs-intro">
+      <div class="songs-intro-text">Apna pasandida gaana chunno aur step by step seekho</div>
+    </div>
+    <div class="songs-container" id="songsContainer">
+      <!-- Populated by songs.js -->
+    </div>
+  </div>
+
+  <!-- ── SCREEN: LESSON ────────────────────────────── -->
+  <div id="screen-lesson" class="screen">
+    <div class="app-header">
+      <button class="btn-back" id="btnBackFromLesson">←</button>
+      <div class="app-logo-sm" id="lessonTitle">Happy Birthday</div>
+      <div class="token-pill" id="tokenPillLesson">🤖 0</div>
+    </div>
+    <div id="lessonContent">
+      <!-- Populated by lesson.js -->
+    </div>
+  </div>
+
+  <!-- ── SCREEN: REQUEST ───────────────────────────── -->
+  <div id="screen-request" class="screen">
+    <div class="app-header">
+      <button class="btn-back" id="btnBackFromRequest">←</button>
+      <div class="app-logo-sm">Sargam Request</div>
+    </div>
+
+    <!-- Price Banner -->
+    <div class="request-banner">
+      <div class="request-banner-price">☕ ₹49</div>
+      <div class="request-banner-label">Ek chai ki keemat mein apna pasandida gaana</div>
+    </div>
+
+    <!-- What you get -->
+    <div class="request-what">
+      <div class="section-label" style="padding: 0 0 10px;">Kya milega aapko</div>
+      <div class="request-feature">✓ Clean PDF with every note — blow/draw clearly marked</div>
+      <div class="request-feature">✓ Sargam notation — Sa Re Ga Ma style</div>
+      <div class="request-feature">✓ Hole numbers for your harmonica type</div>
+      <div class="request-feature">✓ Delivered on WhatsApp within 24 hours</div>
+    </div>
+
+    <!-- Tally Button -->
+    <div class="request-cta">
+      <button class="btn-tally" id="btnTallyRequest">
+        📝 Request Karo — ₹49
+      </button>
+      <div class="request-cta-sub">Form bharo → UPI pe pay karo → 24 ghante mein PDF milega</div>
+    </div>
+
+    <!-- Fulfilled List -->
+    <div class="fulfilled-section">
+      <div class="section-label" style="padding: 0 0 12px;">Recently Fulfilled</div>
+      <div id="fulfilledList"></div>
+    </div>
+
+    <!-- Shubham Note -->
+    <div class="shubham-note">
+      <div class="shubham-note-avatar">🎵</div>
+      <div class="shubham-note-content">
+        <div class="shubham-note-name">Shubham — Acoustic_Bihari</div>
+        <div class="shubham-note-text">
+          Harmonica seekhna ek journey hai — aur har gaane ki apni ek kahani hoti hai.
+          Agar koi bhi gaana hai jo aap bajana chahte ho, main personally uski sargam
+          taiyaar karke deta hoon. Bas ek chai ki keemat mein. 🙏
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── BOTTOM NAV ────────────────────────────────── -->
+  <nav class="bottom-nav" id="bottomNav" style="display:none">
+    <button class="nav-tab active" data-screen="home">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">Home</span>
+    </button>
+    <button class="nav-tab" data-screen="practice">
+      <span class="nav-icon">🎵</span>
+      <span class="nav-label">Practice</span>
+    </button>
+    <button class="nav-tab" data-screen="songs">
+      <span class="nav-icon">🎼</span>
+      <span class="nav-label">Songs</span>
+    </button>
+    <button class="nav-tab" data-screen="request">
+      <span class="nav-icon">☕</span>
+      <span class="nav-label">Request</span>
+    </button>
+  </nav>
+
+  <!-- ── UNLOCK MODAL ──────────────────────────────── -->
+  <div id="unlockModal" class="modal-backdrop" style="display:none">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div id="unlockContent"></div>
+    </div>
+  </div>
+
+  <!-- ── SONG PAYWALL SHEET ─────────────────────────── -->
+  <div id="paywallSheet" class="modal-backdrop" style="display:none">
+    <div class="modal-sheet paywall-modal">
+      <div class="modal-handle"></div>
+      <div id="paywallContent"></div>
+    </div>
+  </div>
+
+  <!-- ── VOICE SETTINGS SHEET ──────────────────────── -->
+  <div id="voiceSheet" class="modal-backdrop" style="display:none">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="voice-sheet-content">
+        <div class="voice-sheet-title">🔊 Voice Settings</div>
+        <div class="voice-row">
+          <span class="voice-row-label">Voice</span>
+          <div class="voice-toggle-group">
+            <button class="voice-toggle-btn active" id="voiceBtnOn">On</button>
+            <button class="voice-toggle-btn" id="voiceBtnOff">Off</button>
+          </div>
+        </div>
+        <div class="voice-row">
+          <span class="voice-row-label">Language</span>
+          <div class="voice-toggle-group">
+            <button class="voice-toggle-btn active" id="voiceBtnHinglish">Hinglish</button>
+            <button class="voice-toggle-btn" id="voiceBtnEnglish">English</button>
+          </div>
+        </div>
+        <button class="btn-modal-close" id="btnCloseVoice">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SCREEN: ADMIN (Shubham only) ─────────────── -->
+  <div id="screen-admin" class="screen">
+    <div class="app-header">
+      <button class="btn-back" id="btnBackFromAdmin">←</button>
+      <div class="app-logo-sm">🔧 Admin Dashboard</div>
+    </div>
+    <div id="adminContent" style="padding:16px 16px 80px">
+      <div class="admin-loading">Loading stats...</div>
+    </div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+
+  <!-- PWA Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('SW registered:', reg.scope))
+          .catch(err => console.log('SW failed:', err));
+      });
+    }
+  </script>
+</body>
+</html>
