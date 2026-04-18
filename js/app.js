@@ -932,3 +932,68 @@ async function generateCode() {
     console.error(e);
   }
 }
+
+// ── Swipe Down to Dismiss — all modal sheets ──────────────────────────
+// Attaches touch drag-down detection to every .modal-sheet
+// User swipes down → sheet translates → releases → backdrop closes
+function initSwipeToDismiss() {
+  document.querySelectorAll('.modal-sheet').forEach(sheet => {
+    let startY  = 0;
+    let currentY = 0;
+    let isDragging = false;
+
+    sheet.addEventListener('touchstart', (e) => {
+      // Only drag from top 60px of sheet (handle area) or handle element
+      const touch = e.touches[0];
+      const rect  = sheet.getBoundingClientRect();
+      if (touch.clientY - rect.top > 80) return; // ignore taps on content
+      startY    = touch.clientY;
+      isDragging = true;
+      sheet.style.transition = 'none';
+    }, { passive: true });
+
+    sheet.addEventListener('touchmove', (e) => {
+      if (!isDragging) return;
+      currentY = e.touches[0].clientY;
+      const dy = Math.max(0, currentY - startY); // only downward
+      sheet.style.transform = `translateY(${dy}px)`;
+    }, { passive: true });
+
+    sheet.addEventListener('touchend', () => {
+      if (!isDragging) return;
+      isDragging = false;
+      const dy = Math.max(0, currentY - startY);
+      sheet.style.transition = 'transform 0.25s ease';
+
+      if (dy > 100) {
+        // Swiped enough — close the backdrop
+        sheet.style.transform = `translateY(100%)`;
+        setTimeout(() => {
+          sheet.style.transform = '';
+          sheet.style.transition = '';
+          // Close whichever backdrop contains this sheet
+          const backdrop = sheet.closest('.modal-backdrop');
+          if (backdrop) backdrop.style.display = 'none';
+        }, 250);
+      } else {
+        // Snap back
+        sheet.style.transform = '';
+      }
+    });
+  });
+}
+
+// Also wire backdrop tap to close (tapping outside the sheet)
+function initBackdropTapToClose() {
+  document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+    backdrop.addEventListener('click', (e) => {
+      if (e.target === backdrop) {
+        backdrop.style.display = 'none';
+      }
+    });
+  });
+}
+
+// Run both after DOM is ready
+initSwipeToDismiss();
+initBackdropTapToClose();
