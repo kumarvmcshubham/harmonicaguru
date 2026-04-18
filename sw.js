@@ -1,7 +1,7 @@
 // sw.js
 // HarmonicaGuru — Service Worker
 
-const CACHE_NAME = 'harmonicaguru-v2';
+const CACHE_NAME = 'harmonicaguru-v3';
 const BASE = '/harmonicaguru';
 
 const SHELL_FILES = [
@@ -40,7 +40,13 @@ self.addEventListener('activate', (e) => {
           .filter(key => key !== CACHE_NAME)
           .map(key => caches.delete(key))
       )
-    ).then(() => self.clients.claim())
+    ).then(() => {
+      self.clients.claim();
+      // Tell all open tabs that a new version is active
+      self.clients.matchAll({ type: 'window' }).then(clients => {
+        clients.forEach(client => client.postMessage({ type: 'SW_UPDATED' }));
+      });
+    })
   );
 });
 

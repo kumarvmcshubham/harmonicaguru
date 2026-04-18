@@ -997,3 +997,17 @@ function initBackdropTapToClose() {
 // Run both after DOM is ready
 initSwipeToDismiss();
 initBackdropTapToClose();
+
+// ── Service Worker Update Banner ──────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', (e) => {
+    if (e.data?.type === 'SW_UPDATED') {
+      const banner = document.getElementById('updateBanner');
+      if (banner) banner.style.display = 'flex';
+    }
+  });
+}
+
+document.getElementById('btnUpdateRefresh')?.addEventListener('click', () => {
+  window.location.reload();
+});
