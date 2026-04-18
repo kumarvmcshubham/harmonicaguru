@@ -393,8 +393,8 @@ function showSubscribeSheet() {
 // ── Unlock Modal (general) ────────────────────────────────────────────
 export function showUnlockModal(feature) {
   const features = {
-    allScales:    { name: 'All Scales (C through B)',        price: '₹99',  desc: 'Unlock all 12 keys. Included in subscription.' },
-    sargamGroups: { name: '3-Note & 4-Note Groups Bundle',   price: '₹79',  desc: 'Sliding note groups. Included in subscription.' },
+    allScales:    { name: 'All Scales (C through B)',        price: '₹99/month',  desc: 'Unlock all 12 keys, 2-Note 3-Note 4-Note groups, unlimited practice. Subscribe karo.' },
+    sargamGroups: null,
     aiStarter:    { name: 'AI Credits — 5 pack',             price: '₹19',  desc: '5 AI feedback sessions.' },
     aiStandard:   { name: 'AI Credits — 20 pack',            price: '₹49',  desc: '20 AI feedback sessions.' },
     aiPower:      { name: 'AI Credits — 60 pack',            price: '₹99',  desc: '60 AI feedback sessions.' },
@@ -573,7 +573,11 @@ async function validateCode(code, errDivOverride) {
       p.style.background = tokens === 0 ? '#dc2626' : '#F4600C';
     });
 
-    if (entry.type === 'subscription') buildKeyRow();
+    if (entry.type === 'subscription') {
+      buildKeyRow();
+      // Re-init practice screen with fresh userData so tabs unlock immediately
+      initPractice(selectedKey, harmonicaType, userData, showUnlockModal);
+    }
 
   } catch(err) {
     if (errDiv) errDiv.textContent = 'Kuch error hua — dobara try karo.';
@@ -938,16 +942,13 @@ async function generateCode() {
 // User swipes down → sheet translates → releases → backdrop closes
 function initSwipeToDismiss() {
   document.querySelectorAll('.modal-sheet').forEach(sheet => {
-    let startY  = 0;
+    let startY   = 0;
     let currentY = 0;
     let isDragging = false;
 
     sheet.addEventListener('touchstart', (e) => {
-      // Only drag from top 60px of sheet (handle area) or handle element
-      const touch = e.touches[0];
-      const rect  = sheet.getBoundingClientRect();
-      if (touch.clientY - rect.top > 80) return; // ignore taps on content
-      startY    = touch.clientY;
+      startY     = e.touches[0].clientY;
+      currentY   = startY;
       isDragging = true;
       sheet.style.transition = 'none';
     }, { passive: true });
@@ -955,7 +956,7 @@ function initSwipeToDismiss() {
     sheet.addEventListener('touchmove', (e) => {
       if (!isDragging) return;
       currentY = e.touches[0].clientY;
-      const dy = Math.max(0, currentY - startY); // only downward
+      const dy = Math.max(0, currentY - startY);
       sheet.style.transform = `translateY(${dy}px)`;
     }, { passive: true });
 
@@ -965,13 +966,11 @@ function initSwipeToDismiss() {
       const dy = Math.max(0, currentY - startY);
       sheet.style.transition = 'transform 0.25s ease';
 
-      if (dy > 100) {
-        // Swiped enough — close the backdrop
+      if (dy > 120) {
         sheet.style.transform = `translateY(100%)`;
         setTimeout(() => {
-          sheet.style.transform = '';
+          sheet.style.transform  = '';
           sheet.style.transition = '';
-          // Close whichever backdrop contains this sheet
           const backdrop = sheet.closest('.modal-backdrop');
           if (backdrop) backdrop.style.display = 'none';
         }, 250);
