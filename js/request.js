@@ -31,7 +31,7 @@ function bindTallyButton() {
 
   fresh.onclick = () => {
     // Replace with your actual Tally form URL when ready
-    const tallyUrl = 'https://tally.so/r/XXXXXXXX';
+    const tallyUrl = 'https://tally.so/r/BzbbyK';
     window.open(tallyUrl, '_blank');
   };
 }
