@@ -62,10 +62,29 @@ async function onUserReady() {
   const name = currentUser.displayName?.split(' ')[0] || 'Dost';
   document.getElementById('homeGreeting').textContent = `Namaste, ${name}! 👋`;
 
-  const tokens = userData?.subscription?.aiCreditsRemaining || 0;
+  const tokens = userData?.subscription?.aiCreditsRemaining ?? 0;
+
+  // Give 5 starter credits only to new users who never used AI and have zero credits
+  const neverUsedAI  = (userData?.aiCallsTotal || 0) === 0;
+  const isFreeZero   = tokens === 0 && userData?.subscription?.status !== 'monthly';
+  if (isFreeZero && neverUsedAI) {
+    try {
+      const userRef = doc(db, 'users', currentUser.uid);
+      await updateDoc(userRef, { 'subscription.aiCreditsRemaining': 5 });
+      userData.subscription.aiCreditsRemaining = 5;
+    } catch(e) { console.warn('Could not set initial credits:', e); }
+  }
+
+  const finalTokens = userData?.subscription?.aiCreditsRemaining || 0;
   document.querySelectorAll('.token-pill').forEach(p => {
-    p.textContent      = `🤖 ${tokens}`;
-    p.style.background = tokens === 0 ? '#dc2626' : '#F4600C';
+    // Home pill has inner span, others are plain text
+    const inner = p.querySelector('span');
+    if (inner) {
+      inner.textContent = `🤖 ${finalTokens}`;
+    } else {
+      p.textContent = `🤖 ${finalTokens}`;
+    }
+    p.style.background = finalTokens === 0 ? '#dc2626' : '#F4600C';
     p.style.cursor     = 'pointer';
     p.onclick          = () => showCreditsSheet();
   });
@@ -636,6 +655,7 @@ function updateVoiceHeaderBtn() {
 // ── AI Credits Sheet ──────────────────────────────────────────────────
 function showCreditsSheet() {
   const credits = userData?.subscription?.aiCreditsRemaining || 0;
+  const finalTokens = credits;
   const modal   = document.getElementById('unlockModal');
   const content = document.getElementById('unlockContent');
 
@@ -649,9 +669,14 @@ function showCreditsSheet() {
                     : 'Credits available hain';
 
   content.innerHTML = `
+    <div style="background:rgba(244,96,12,0.08);border:1px solid rgba(244,96,12,0.2);border-radius:14px;padding:14px 16px;margin-bottom:18px">
+      <div style="font-family:var(--font-h);font-size:0.9rem;font-weight:800;color:#fff;margin-bottom:6px">🎓 AI Ustaad kya karta hai?</div>
+      <div style="font-size:0.78rem;color:var(--muted);line-height:1.6">Happy Birthday ka ek hissa complete karo — AI Ustaad aapki performance sunta hai aur seedha Hindi mein feedback deta hai. Kaun sa note weak tha, kaun sa sahi — specific aur helpful.<br><br><strong style="color:var(--saffron)">1 hissa = 1 credit</strong></div>
+    </div>
+
     <div style="text-align:center;margin-bottom:20px">
       <div style="font-size:2.5rem;margin-bottom:6px">🤖</div>
-      <div style="font-family:var(--font-h);font-size:1.8rem;font-weight:800;color:${creditColor}">${credits}</div>
+      <div style="font-family:var(--font-h);font-size:1.8rem;font-weight:800;color:${creditColor}">${finalTokens}</div>
       <div style="font-family:var(--font-h);font-size:0.85rem;color:var(--muted);margin-top:4px">${creditMsg}</div>
     </div>
 
