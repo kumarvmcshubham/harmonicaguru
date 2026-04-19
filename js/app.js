@@ -523,9 +523,14 @@ async function validateCode(code, errDivOverride) {
       }
       // Mark as used in usedCodes
       await sd(usedRef, {
-        usedBy: currentUser.uid,
-        usedAt: new Date(),
-        email:  currentUser.email
+        usedBy:    currentUser.uid,
+        usedAt:    new Date(),
+        email:     currentUser.email,
+        codeType:  entry.type || 'unknown',
+        detail:    entry.type === 'ai' ? `${entry.credits} credits`
+                 : entry.type === 'song' ? entry.songId
+                 : entry.type === 'subscription' ? `${entry.months}m`
+                 : ''
       });
       // If Firestore code — mark inactive in codes collection
       if (isFirestoreCode) {
@@ -659,9 +664,9 @@ function showCreditsSheet() {
   const modal   = document.getElementById('unlockModal');
   const content = document.getElementById('unlockContent');
 
-  const wa5  = encodeURIComponent(`Namaste Shubham! Main HarmonicaGuru AI Credits — 5 pack (₹19) lena chahta hoon.\nMera account: ${currentUser?.email}`);
-  const wa20 = encodeURIComponent(`Namaste Shubham! Main HarmonicaGuru AI Credits — 20 pack (₹49) lena chahta hoon.\nMera account: ${currentUser?.email}`);
-  const wa60 = encodeURIComponent(`Namaste Shubham! Main HarmonicaGuru AI Credits — 60 pack (₹99) lena chahta hoon.\nMera account: ${currentUser?.email}`);
+  const wa5  = encodeURIComponent(`Namaste Shubham! Main HarmonicaGuru AI Credits — Starter Pack 10 credits (₹10) lena chahta hoon.\nMera account: ${currentUser?.email}`);
+  const wa20 = encodeURIComponent(`Namaste Shubham! Main HarmonicaGuru AI Credits — Standard Pack 25 credits (₹20) lena chahta hoon.\nMera account: ${currentUser?.email}`);
+  const wa60 = encodeURIComponent(`Namaste Shubham! Main HarmonicaGuru AI Credits — Power Pack 50 credits (₹30) lena chahta hoon.\nMera account: ${currentUser?.email}`);
 
   const creditColor = credits === 0 ? '#dc2626' : credits <= 2 ? '#F59E0B' : '#22C55E';
   const creditMsg   = credits === 0 ? 'Credits khatam — nayi pack lo'
@@ -671,7 +676,7 @@ function showCreditsSheet() {
   content.innerHTML = `
     <div style="background:rgba(244,96,12,0.08);border:1px solid rgba(244,96,12,0.2);border-radius:14px;padding:14px 16px;margin-bottom:18px">
       <div style="font-family:var(--font-h);font-size:0.9rem;font-weight:800;color:#fff;margin-bottom:6px">🎓 AI Ustaad kya karta hai?</div>
-      <div style="font-size:0.78rem;color:var(--muted);line-height:1.6">Songs ka ek hissa complete karo — AI Ustaad aapki performance sunta hai aur seedha feedback deta hai. Kaun sa note weak tha, kaun sa sahi — specific aur helpful.<br><br><strong style="color:var(--saffron)">1 hissa = 1 credit</strong></div>
+      <div style="font-size:0.78rem;color:var(--muted);line-height:1.6">Happy Birthday ka ek hissa complete karo — AI Ustaad aapki performance sunta hai aur seedha Hindi mein feedback deta hai. Kaun sa note weak tha, kaun sa sahi — specific aur helpful.<br><br><strong style="color:var(--saffron)">1 hissa = 1 credit</strong></div>
     </div>
 
     <div style="text-align:center;margin-bottom:20px">
@@ -687,36 +692,36 @@ function showCreditsSheet() {
     <div class="credits-pack" style="margin-bottom:10px">
       <div class="credits-pack-info">
         <div class="credits-pack-name">Starter Pack</div>
-        <div class="credits-pack-count">5 credits</div>
-        <div class="credits-pack-desc">Ek hissa — ek feedback</div>
+        <div class="credits-pack-count">10 credits</div>
+        <div class="credits-pack-desc">₹1 per feedback</div>
       </div>
       <div class="credits-pack-right">
-        <div class="credits-pack-price">₹19</div>
+        <div class="credits-pack-price">₹10</div>
         <a href="https://wa.me/917992414776?text=${wa5}" target="_blank" class="btn-credits-buy">Buy →</a>
       </div>
     </div>
 
-    <div class="credits-pack best-pack" style="margin-bottom:10px">
-      <div class="credits-pack-badge">⭐ Best Value</div>
+    <div class="credits-pack" style="margin-bottom:10px">
       <div class="credits-pack-info">
         <div class="credits-pack-name">Standard Pack</div>
-        <div class="credits-pack-count">20 credits</div>
-        <div class="credits-pack-desc">₹2.45 per feedback</div>
+        <div class="credits-pack-count">25 credits</div>
+        <div class="credits-pack-desc">₹0.80 per feedback</div>
       </div>
       <div class="credits-pack-right">
-        <div class="credits-pack-price">₹49</div>
+        <div class="credits-pack-price">₹20</div>
         <a href="https://wa.me/917992414776?text=${wa20}" target="_blank" class="btn-credits-buy">Buy →</a>
       </div>
     </div>
 
-    <div class="credits-pack" style="margin-bottom:20px">
+    <div class="credits-pack best-pack" style="margin-bottom:20px">
+      <div class="credits-pack-badge">⭐ Best Value</div>
       <div class="credits-pack-info">
         <div class="credits-pack-name">Power Pack</div>
-        <div class="credits-pack-count">60 credits</div>
-        <div class="credits-pack-desc">₹1.65 per feedback</div>
+        <div class="credits-pack-count">50 credits</div>
+        <div class="credits-pack-desc">₹0.60 per feedback</div>
       </div>
       <div class="credits-pack-right">
-        <div class="credits-pack-price">₹99</div>
+        <div class="credits-pack-price">₹30</div>
         <a href="https://wa.me/917992414776?text=${wa60}" target="_blank" class="btn-credits-buy">Buy →</a>
       </div>
     </div>
@@ -827,9 +832,9 @@ async function loadAdminDashboard() {
         <div class="admin-title">🔑 Generate New Code</div>
         <select id="adminCodeType" style="width:100%;padding:10px;border-radius:10px;background:var(--navy3);border:1px solid rgba(255,255,255,0.1);color:var(--white);font-family:var(--font-h);font-size:0.88rem;margin-bottom:10px">
           <option value="subscription_1">Subscription — ₹99/month</option>
-          <option value="ai_5">AI Credits — 5 pack (₹19)</option>
-          <option value="ai_20">AI Credits — 20 pack (₹49)</option>
-          <option value="ai_60">AI Credits — 60 pack (₹99)</option>
+          <option value="ai_10">AI Credits — Starter 10 pack (₹10)</option>
+          <option value="ai_25">AI Credits — Standard 25 pack (₹20)</option>
+          <option value="ai_50">AI Credits — Power 50 pack (₹30)</option>
           <option value="song_hb">Song — Happy Birthday (₹49)</option>
           <option value="song_sarjo">Song — Sar Jo Tera (₹49)</option>
           <option value="song_sholay">Song — Sholay Medley (₹99)</option>
@@ -883,7 +888,7 @@ async function loadAdminDashboard() {
           : recentCodes.map(c => `
               <div class="admin-code-row">
                 <div class="admin-code-val">${c.code}</div>
-                <div class="admin-code-meta">${c.email || '—'}</div>
+                <div class="admin-code-meta">${c.email || '—'} · ${c.codeType || ''}${c.detail ? ' · ' + c.detail : ''}</div>
               </div>`).join('')
         }
       </div>
@@ -957,11 +962,30 @@ async function generateCode() {
       expiresAt: expiry,
     });
 
-    // Show generated code
-    const display = document.getElementById('generatedCodeDisplay');
-    const codeEl  = document.getElementById('generatedCodeVal');
+    // Show generated code with type label
+    const display  = document.getElementById('generatedCodeDisplay');
+    const codeEl   = document.getElementById('generatedCodeVal');
     if (display && codeEl) {
-      codeEl.textContent   = code;
+      codeEl.textContent = code;
+      // Show type label
+      const typeLabel = document.getElementById('generatedCodeType') || (() => {
+        const el = document.createElement('div');
+        el.id = 'generatedCodeType';
+        el.style.cssText = 'font-size:0.72rem;color:var(--muted);margin-top:6px';
+        display.appendChild(el);
+        return el;
+      })();
+      const typeNames = {
+        subscription_1: 'Subscription — ₹99/month',
+        ai_10: 'AI Credits — Starter 10 pack',
+        ai_25: 'AI Credits — Standard 25 pack',
+        ai_50: 'AI Credits — Power 50 pack',
+        song_hb: 'Song — Happy Birthday',
+        song_sarjo: 'Song — Sar Jo Tera',
+        song_sholay: 'Song — Sholay Medley',
+        song_haiaapna: 'Song — Hai Apna Dil',
+      };
+      typeLabel.textContent = `Type: ${typeNames[typeVal] || typeVal}`;
       display.style.display = 'block';
     }
   } catch(e) {
@@ -975,27 +999,55 @@ async function generateCode() {
 // User swipes down → sheet translates → releases → backdrop closes
 function initSwipeToDismiss() {
   document.querySelectorAll('.modal-sheet').forEach(sheet => {
-    let startY   = 0;
-    let currentY = 0;
+    let startY     = 0;
+    let startX     = 0;
+    let currentY   = 0;
     let isDragging = false;
+    let decided    = false; // have we decided swipe vs scroll yet
 
     sheet.addEventListener('touchstart', (e) => {
-      startY     = e.touches[0].clientY;
-      currentY   = startY;
-      isDragging = true;
+      startY   = e.touches[0].clientY;
+      startX   = e.touches[0].clientX;
+      currentY = startY;
+      isDragging = false;
+      decided    = false;
       sheet.style.transition = 'none';
     }, { passive: true });
 
     sheet.addEventListener('touchmove', (e) => {
+      const dy = e.touches[0].clientY - startY;
+      const dx = e.touches[0].clientX - startX;
+
+      // Decide direction only once per gesture
+      if (!decided) {
+        decided = true;
+        // If moving more horizontally or upward — not a dismiss gesture
+        if (Math.abs(dx) > Math.abs(dy) || dy < 0) {
+          isDragging = false;
+          return;
+        }
+        // If sheet content is scrolled down — let scroll happen first
+        if (sheet.scrollTop > 0) {
+          isDragging = false;
+          return;
+        }
+        // Moving downward from top — take control
+        isDragging = true;
+      }
+
       if (!isDragging) return;
+
+      // Prevent page scroll while dismissing
+      e.preventDefault();
       currentY = e.touches[0].clientY;
-      const dy = Math.max(0, currentY - startY);
-      sheet.style.transform = `translateY(${dy}px)`;
-    }, { passive: true });
+      const move = Math.max(0, currentY - startY);
+      sheet.style.transform = `translateY(${move}px)`;
+    }, { passive: false }); // passive:false so we can preventDefault
 
     sheet.addEventListener('touchend', () => {
       if (!isDragging) return;
       isDragging = false;
+      decided    = false;
       const dy = Math.max(0, currentY - startY);
       sheet.style.transition = 'transform 0.25s ease';
 
@@ -1008,7 +1060,6 @@ function initSwipeToDismiss() {
           if (backdrop) backdrop.style.display = 'none';
         }, 250);
       } else {
-        // Snap back
         sheet.style.transform = '';
       }
     });
