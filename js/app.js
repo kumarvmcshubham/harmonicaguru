@@ -671,7 +671,7 @@ function showCreditsSheet() {
   content.innerHTML = `
     <div style="background:rgba(244,96,12,0.08);border:1px solid rgba(244,96,12,0.2);border-radius:14px;padding:14px 16px;margin-bottom:18px">
       <div style="font-family:var(--font-h);font-size:0.9rem;font-weight:800;color:#fff;margin-bottom:6px">🎓 AI Ustaad kya karta hai?</div>
-      <div style="font-size:0.78rem;color:var(--muted);line-height:1.6">Happy Birthday ka ek hissa complete karo — AI Ustaad aapki performance sunta hai aur seedha Hindi mein feedback deta hai. Kaun sa note weak tha, kaun sa sahi — specific aur helpful.<br><br><strong style="color:var(--saffron)">1 hissa = 1 credit</strong></div>
+      <div style="font-size:0.78rem;color:var(--muted);line-height:1.6">Songs ka ek hissa complete karo — AI Ustaad aapki performance sunta hai aur seedha feedback deta hai. Kaun sa note weak tha, kaun sa sahi — specific aur helpful.<br><br><strong style="color:var(--saffron)">1 hissa = 1 credit</strong></div>
     </div>
 
     <div style="text-align:center;margin-bottom:20px">
