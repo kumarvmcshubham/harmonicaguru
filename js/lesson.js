@@ -9,7 +9,7 @@ import {
   stopReference, isPlayingRef, playDing
 } from './audio.js';
 import { db } from './firebase-config.js';
-import { doc, updateDoc, getDoc } from
+import { doc, updateDoc, getDoc, increment } from
   "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ── Groq config ────────────────────────────────────────────────────────
@@ -34,7 +34,7 @@ const SONG_DATA = {
 };
 
 // ── Init ──────────────────────────────────────────────────────────────
-export async function initLesson(songCatalog, hType, user, uData) {
+export function initLesson(songCatalog, hType, user, uData) {
   const songData = SONG_DATA[songCatalog.id];
   if (!songData) {
     const content = document.getElementById('lessonContent');
@@ -54,23 +54,28 @@ export async function initLesson(songCatalog, hType, user, uData) {
   currentSong   = songData;
   harmonicaType = hType || 'diatonic';
   currentUser   = user;
+  userData      = uData; // use passed data immediately
   hissaResults  = new Array(songData.lines.length).fill(null);
-
-  // Always fetch fresh userData so AI credits are current
-  try {
-    const { getDoc } = await import(
-      "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"
-    );
-    const snap = await getDoc(doc(db, 'users', user.uid));
-    userData = snap.exists() ? snap.data() : uData;
-  } catch(e) {
-    userData = uData; // fallback to passed data
-    console.warn('Could not refresh userData:', e);
-  }
 
   setKey('C');
   renderLessonScreen();
   loadHissa(0);
+
+  // Refresh credits in background — updates token pill when ready
+  import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js")
+    .then(({ getDoc, doc: d }) => getDoc(d(db, 'users', user.uid)))
+    .then(snap => {
+      if (snap.exists()) {
+        userData = snap.data();
+        // Update token pill with fresh credits
+        const credits = userData?.subscription?.aiCreditsRemaining || 0;
+        document.querySelectorAll('.token-pill').forEach(p => {
+          p.textContent      = `🤖 ${credits}`;
+          p.style.background = credits === 0 ? '#dc2626' : '#F4600C';
+        });
+      }
+    })
+    .catch(e => console.warn('Could not refresh userData:', e));
 }
 
 // ── Render Lesson Screen ───────────────────────────────────────────────
@@ -514,58 +519,61 @@ Give one sentence of feedback — direct, specific, encouraging when deserved. U
         <div class="ai-powered-tag">✨ AI Powered</div>
       </div>`;
 
-    // ── Deduct credit + track usage ───────────────────────────────────
+    // ── Deduct credit + track usage — separate try/catch so errors here
+    // don't show the "internet" error message to user
     if (currentUser) {
-      const newCredits = credits - 1;
-      const userRef    = doc(db, 'users', currentUser.uid);
+      try {
+        const newCredits = credits - 1;
+        const userRef    = doc(db, 'users', currentUser.uid);
 
-      // Update user credits + usage stats
-      const { increment } = await import(
-        "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"
-      );
-      await updateDoc(userRef, {
-        'subscription.aiCreditsRemaining': newCredits,
-        'aiCallsTotal':                    increment(1),
-        'aiCallsThisMonth':                increment(1),
-      });
+        await updateDoc(userRef, {
+          'subscription.aiCreditsRemaining': newCredits,
+          'aiCallsTotal':                    increment(1),
+          'aiCallsThisMonth':                increment(1),
+        });
 
-      // Update admin stats
-      await trackAICallInAdmin();
+        // Update admin stats
+        await trackAICallInAdmin();
 
-      // Update local state
-      userData.subscription.aiCreditsRemaining = newCredits;
-      if (creditsEl) {
-        if (newCredits <= 0) {
-          creditsEl.textContent = '0 credits';
-          creditsEl.className   = 'ai-credits-badge zero';
-        } else if (newCredits <= 2) {
-          creditsEl.textContent = `⚠️ ${newCredits} credit${newCredits === 1 ? '' : 's'} bacha`;
-          creditsEl.className   = 'ai-credits-badge low';
-        } else {
-          creditsEl.textContent = `${newCredits} credits`;
-          creditsEl.className   = 'ai-credits-badge ok';
+        // Update local state
+        userData.subscription.aiCreditsRemaining = newCredits;
+        if (creditsEl) {
+          if (newCredits <= 0) {
+            creditsEl.textContent = '0 credits';
+            creditsEl.className   = 'ai-credits-badge zero';
+          } else if (newCredits <= 2) {
+            creditsEl.textContent = `⚠️ ${newCredits} credit${newCredits === 1 ? '' : 's'} bacha`;
+            creditsEl.className   = 'ai-credits-badge low';
+          } else {
+            creditsEl.textContent = `${newCredits} credits`;
+            creditsEl.className   = 'ai-credits-badge ok';
+          }
         }
-      }
 
-      // Update token pill in header
-      document.querySelectorAll('.token-pill').forEach(p => {
-        p.textContent      = `🤖 ${newCredits}`;
-        p.style.background = newCredits === 0 ? '#dc2626' : '#F4600C';
-      });
+        // Update token pill in header
+        document.querySelectorAll('.token-pill').forEach(p => {
+          p.textContent      = `🤖 ${newCredits}`;
+          p.style.background = newCredits === 0 ? '#dc2626' : '#F4600C';
+        });
 
-      // Low credits warning — 1 or 2 left
-      if (newCredits > 0 && newCredits <= 2) {
-        const waMsg = encodeURIComponent(
-          `Namaste Shubham! Mere HarmonicaGuru AI credits sirf ${newCredits} bache hain. Nayi pack lena chahta hoon.\nMera account: ${currentUser?.email}`
-        );
-        setTimeout(() => {
-          const lowDiv = document.createElement('div');
-          lowDiv.className = 'ai-low-warning';
-          lowDiv.innerHTML = `
-            ⚠️ Sirf ${newCredits} credit${newCredits === 1 ? '' : 's'} bacha hai —
-            <a href="https://wa.me/${MASTER_WA}?text=${waMsg}" target="_blank">abhi lo →</a>`;
-          panelEl?.appendChild(lowDiv);
-        }, 1000);
+        // Low credits warning — 1 or 2 left
+        if (newCredits > 0 && newCredits <= 2) {
+          const waMsg = encodeURIComponent(
+            `Namaste Shubham! Mere HarmonicaGuru AI credits sirf ${newCredits} bache hain. Nayi pack lena chahta hoon.\nMera account: ${currentUser?.email}`
+          );
+          setTimeout(() => {
+            const lowDiv = document.createElement('div');
+            lowDiv.className = 'ai-low-warning';
+            lowDiv.innerHTML = `
+              ⚠️ Sirf ${newCredits} credit${newCredits === 1 ? '' : 's'} bacha hai —
+              <a href="https://wa.me/${MASTER_WA}?text=${waMsg}" target="_blank">abhi lo →</a>`;
+            panelEl?.appendChild(lowDiv);
+          }, 1000);
+        }
+      } catch(creditErr) {
+        // Credit deduction failed — log but don't show error to user
+        // Feedback was already shown successfully above
+        console.warn('Credit deduction error:', creditErr);
       }
     }
 
@@ -582,10 +590,10 @@ Give one sentence of feedback — direct, specific, encouraging when deserved. U
 // ── Track AI call in admin Firestore ──────────────────────────────────
 async function trackAICallInAdmin() {
   try {
-    const { increment, setDoc, serverTimestamp } = await import(
+    const { setDoc, serverTimestamp } = await import(
       "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"
     );
-    const today    = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const today    = new Date().toISOString().slice(0, 10);
     const statsRef = doc(db, 'admin', 'aiStats');
     const dayRef   = doc(db, 'admin', `aiDay_${today}`);
 

@@ -55,19 +55,37 @@ watchAuthState(
 
 // ── On User Ready ─────────────────────────────────────────────────────
 async function onUserReady() {
+  // ── Version check — auto reload if app is outdated ──────────────────
+  try {
+    const { getDoc: gd } = await import(
+      "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"
+    );
+    const vSnap = await gd(doc(db, 'admin', 'appVersion'));
+    if (vSnap.exists()) {
+      const remoteV = vSnap.data()?.version || 0;
+      const localV  = parseInt(localStorage.getItem('appVersion') || '0');
+      if (remoteV > localV) {
+        localStorage.setItem('appVersion', remoteV);
+        window.location.reload(true); // hard reload — bypasses cache
+        return;
+      }
+    }
+  } catch(e) { console.warn('Version check failed:', e); }
+
   // Hide loading screen
   document.getElementById('screen-loading').style.display = 'none';
   document.getElementById('bottomNav').style.display = 'flex';
 
   const name = currentUser.displayName?.split(' ')[0] || 'Dost';
-  document.getElementById('homeGreeting').textContent = `Namaste, ${name}! 👋`;
-
-  const tokens = userData?.subscription?.aiCreditsRemaining ?? 0;
+  document.getElementById('homeGreeting').innerHTML = `Namaste, ${name}! 👋 <span style="font-size:0.65rem;color:#7A8FA6;font-family:'DM Sans',sans-serif;font-weight:400;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:50px;padding:3px 10px">Profile ›</span>`;
 
   // Give 5 starter credits only to new users who never used AI and have zero credits
-  const neverUsedAI  = (userData?.aiCallsTotal || 0) === 0;
-  const isFreeZero   = tokens === 0 && userData?.subscription?.status !== 'monthly';
-  if (isFreeZero && neverUsedAI) {
+  const tokens      = userData?.subscription?.aiCreditsRemaining ?? 0;
+  const neverUsedAI = (userData?.aiCallsTotal || 0) === 0;
+  const isFreeZero  = tokens === 0 && userData?.subscription?.status !== 'monthly';
+  const isNewUser   = isFreeZero && neverUsedAI;
+
+  if (isNewUser) {
     try {
       const userRef = doc(db, 'users', currentUser.uid);
       await updateDoc(userRef, { 'subscription.aiCreditsRemaining': 5 });
@@ -75,12 +93,12 @@ async function onUserReady() {
     } catch(e) { console.warn('Could not set initial credits:', e); }
   }
 
+  // Render pill AFTER credits are set
   const finalTokens = userData?.subscription?.aiCreditsRemaining || 0;
   document.querySelectorAll('.token-pill').forEach(p => {
-    // Home pill has inner span, others are plain text
-    const inner = p.querySelector('span');
-    if (inner) {
-      inner.textContent = `🤖 ${finalTokens}`;
+    const inner = p.querySelector('span:first-child') || p;
+    if (p.querySelector('span:first-child')) {
+      p.querySelector('span:first-child').textContent = `🤖 ${finalTokens}`;
     } else {
       p.textContent = `🤖 ${finalTokens}`;
     }
@@ -88,6 +106,41 @@ async function onUserReady() {
     p.style.cursor     = 'pointer';
     p.onclick          = () => showCreditsSheet();
   });
+
+  // One-time AI credits tooltip for new users or first-time visitors
+  const tooltipSeen = localStorage.getItem('aiTooltipSeen');
+  if (!tooltipSeen) {
+    setTimeout(() => {
+      const pill = document.getElementById('tokenPill');
+      if (!pill) return;
+
+      // Add pulse animation
+      pill.style.animation = 'aiPulse 1s ease-in-out 3';
+
+      // Show tooltip bubble
+      const tooltip = document.createElement('div');
+      tooltip.id = 'aiTooltip';
+      tooltip.innerHTML = `
+        <div style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:998" id="aiTooltipBackdrop"></div>
+        <div style="position:absolute;top:60px;right:12px;z-index:999;background:#1A2D47;border:1px solid rgba(244,96,12,0.4);border-radius:14px;padding:14px 16px;max-width:240px;box-shadow:0 8px 24px rgba(0,0,0,0.5)">
+          <div style="font-family:'Baloo 2',cursive;font-size:0.88rem;font-weight:800;color:#fff;margin-bottom:6px">🤖 AI Ustaad Credits</div>
+          <div style="font-size:0.75rem;color:#7A8FA6;line-height:1.5">Aapko 5 free credits mile hain! Song lesson complete karo aur AI se feedback lo.</div>
+          <div style="margin-top:10px;font-size:0.72rem;color:#F4600C;font-weight:700">Tap karo credits dekhne ke liye →</div>
+          <div style="position:absolute;top:-8px;right:24px;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:8px solid rgba(244,96,12,0.4)"></div>
+        </div>`;
+      document.body.appendChild(tooltip);
+
+      // Close on backdrop tap or after 5 seconds
+      const close = () => {
+        tooltip.remove();
+        pill.style.animation = '';
+        localStorage.setItem('aiTooltipSeen', '1');
+      };
+      document.getElementById('aiTooltipBackdrop').onclick = close;
+      pill.onclick = () => { close(); showCreditsSheet(); };
+      setTimeout(close, 5000);
+    }, 1500); // show after 1.5s so home screen has loaded
+  }
 
   harmonicaType = userData?.harmonicaType || null;
 
