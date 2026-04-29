@@ -13,9 +13,9 @@ import { doc, updateDoc, getDoc, increment } from
   "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ── Groq config ────────────────────────────────────────────────────────
-const GROQ_URL   = 'https://api.groq.com/openai/v1/chat/completions';
+const GROQ_URL   = 'https://harmonicaguruapp-ai.writetokumarshubham.workers.dev';
 const GROQ_MODEL = 'llama-3.1-8b-instant';
-const GROQ_KEY   = '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';
+
 
 // ── State ─────────────────────────────────────────────────────────────
 let currentSong     = null;
@@ -483,7 +483,7 @@ Give one sentence of feedback — direct, specific, encouraging when deserved. U
       method: 'POST',
       headers: {
         'Content-Type':  'application/json',
-        'Authorization': `Bearer ${GROQ_KEY}`
+        
       },
       body: JSON.stringify({
         model:       GROQ_MODEL,
