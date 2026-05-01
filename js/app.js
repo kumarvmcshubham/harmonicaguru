@@ -8,7 +8,7 @@ import { initSongs, showSongPaywall } from './songs.js';
 import { initRequest } from './request.js';
 import { initLesson } from './lesson.js';
 import { setVoiceEnabled, setVoiceLang, getVoiceEnabled, getVoiceLang } from './voice.js';
-import { doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { db } from './firebase-config.js';
 
 // ── Master Code — permanent bypass for Shubham only ──────────────────
@@ -47,8 +47,14 @@ watchAuthState(
     currentUser = null;
     userData    = null;
     document.getElementById('bottomNav').style.display = 'none';
-    // Hide loading screen — show login
-    document.getElementById('screen-loading').style.display = 'none';
+    // Hide loading screen
+    const loadingEl = document.getElementById('screen-loading');
+    if (loadingEl) loadingEl.style.display = 'none';
+    // Force login screen visible — override any CSS hiding it
+    const loginEl = document.getElementById('screen-login');
+    if (loginEl) {
+      loginEl.style.display = 'flex';
+    }
     showScreen('login');
   }
 );
@@ -89,7 +95,8 @@ async function onUserReady() {
     try {
       const userRef = doc(db, 'users', currentUser.uid);
       await updateDoc(userRef, { 'subscription.aiCreditsRemaining': 5 });
-      userData.subscription.aiCreditsRemaining = 5;
+      // Re-fetch to guarantee fresh data
+      userData = await getUserData(currentUser.uid);
     } catch(e) { console.warn('Could not set initial credits:', e); }
   }
 
@@ -107,40 +114,8 @@ async function onUserReady() {
     p.onclick          = () => showCreditsSheet();
   });
 
-  // One-time AI credits tooltip for new users or first-time visitors
-  const tooltipSeen = localStorage.getItem('aiTooltipSeen');
-  if (!tooltipSeen) {
-    setTimeout(() => {
-      const pill = document.getElementById('tokenPill');
-      if (!pill) return;
-
-      // Add pulse animation
-      pill.style.animation = 'aiPulse 1s ease-in-out 3';
-
-      // Show tooltip bubble
-      const tooltip = document.createElement('div');
-      tooltip.id = 'aiTooltip';
-      tooltip.innerHTML = `
-        <div style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:998" id="aiTooltipBackdrop"></div>
-        <div style="position:absolute;top:60px;right:12px;z-index:999;background:#1A2D47;border:1px solid rgba(244,96,12,0.4);border-radius:14px;padding:14px 16px;max-width:240px;box-shadow:0 8px 24px rgba(0,0,0,0.5)">
-          <div style="font-family:'Baloo 2',cursive;font-size:0.88rem;font-weight:800;color:#fff;margin-bottom:6px">🤖 AI Ustaad Credits</div>
-          <div style="font-size:0.75rem;color:#7A8FA6;line-height:1.5">Aapko 5 free credits mile hain! Song lesson complete karo aur AI se feedback lo.</div>
-          <div style="margin-top:10px;font-size:0.72rem;color:#F4600C;font-weight:700">Tap karo credits dekhne ke liye →</div>
-          <div style="position:absolute;top:-8px;right:24px;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:8px solid rgba(244,96,12,0.4)"></div>
-        </div>`;
-      document.body.appendChild(tooltip);
-
-      // Close on backdrop tap or after 5 seconds
-      const close = () => {
-        tooltip.remove();
-        pill.style.animation = '';
-        localStorage.setItem('aiTooltipSeen', '1');
-      };
-      document.getElementById('aiTooltipBackdrop').onclick = close;
-      pill.onclick = () => { close(); showCreditsSheet(); };
-      setTimeout(close, 5000);
-    }, 1500); // show after 1.5s so home screen has loaded
-  }
+  // ── AI Ustaad onboarding sheet — once per email, stored in Firestore ──
+  await showAIOnboardingIfNeeded();
 
   harmonicaType = userData?.harmonicaType || null;
 
@@ -978,6 +953,84 @@ function showAdminIfMaster() {
   const ab = document.getElementById('btnAdminDash');
   if (!ab) return;
   ab.style.display = currentUser?.email === MASTER_EMAIL ? 'block' : 'none';
+}
+
+// ── AI Ustaad Onboarding Sheet — once per email via Firestore ─────────
+async function showAIOnboardingIfNeeded() {
+  try {
+    // Check Firestore if this user has seen the onboarding
+    const userRef  = doc(db, 'users', currentUser.uid);
+    const snap     = await getDoc(userRef);
+    const seen     = snap.data()?.aiOnboardingSeen || false;
+    if (seen) return;
+
+    // Show bottom sheet after 1.5s
+    setTimeout(() => {
+      const credits = userData?.subscription?.aiCreditsRemaining || 5;
+
+      const sheet = document.createElement('div');
+      sheet.id    = 'aiOnboardingSheet';
+      sheet.style.cssText = `
+        position:fixed;bottom:0;left:0;right:0;z-index:1000;
+        background:rgba(0,0,0,0.6);display:flex;align-items:flex-end;
+      `;
+      sheet.innerHTML = `
+        <div style="
+          background:#0F1E30;
+          border-radius:20px 20px 0 0;
+          padding:24px 20px 36px;
+          width:100%;
+          border-top:3px solid #F4600C;
+          animation:slideUp 0.35s ease;
+        ">
+          <div style="width:36px;height:4px;background:rgba(255,255,255,0.15);border-radius:2px;margin:0 auto 20px"></div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+            <div style="font-size:2rem">🤖</div>
+            <div style="font-family:'Baloo 2',cursive;font-size:1.1rem;font-weight:800;color:#fff">AI Ustaad — Aapka Personal Teacher</div>
+          </div>
+          <div style="font-size:0.85rem;color:#7A8FA6;line-height:1.7;margin-bottom:18px">
+            Songs ka ek hissa complete karo — AI Ustaad aapki performance sunta hai aur seedha feedback deta hai. Kaun sa note weak tha, kaun sa sahi — specific aur helpful.
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:22px">
+            <div style="display:flex;align-items:center;gap:8px;font-size:0.82rem;color:#fff;font-family:'Baloo 2',cursive">
+              <span style="color:#F4600C">✦</span> 1 hissa complete = 1 credit use hota hai
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:0.82rem;color:#fff;font-family:'Baloo 2',cursive">
+              <span style="color:#F4600C">✦</span> Aapko <strong style="color:#F4600C">${credits} free credits</strong> mile hain abhi
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:0.82rem;color:#fff;font-family:'Baloo 2',cursive">
+              <span style="color:#F4600C">✦</span> 🤖 pill tap karo — aur credits kharido
+            </div>
+          </div>
+          <button id="btnAIOnboardingOK" style="
+            width:100%;padding:15px;
+            background:#F4600C;color:#fff;
+            border:none;border-radius:12px;
+            font-family:'Baloo 2',cursive;font-size:1rem;font-weight:800;
+            cursor:pointer;
+          ">Samajh Gaya! Shuru Karte Hain 🎵</button>
+        </div>
+        <style>@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}</style>
+      `;
+
+      document.body.appendChild(sheet);
+
+      // Only close on OK button — no backdrop dismiss, no auto-close
+      document.getElementById('btnAIOnboardingOK').onclick = async () => {
+        sheet.remove();
+        // Mark as seen in Firestore
+        try {
+          await updateDoc(doc(db, 'users', currentUser.uid), {
+            aiOnboardingSeen: true
+          });
+        } catch(e) { console.warn('Could not mark onboarding seen:', e); }
+      };
+
+    }, 1500);
+
+  } catch(e) {
+    console.warn('Onboarding check failed:', e);
+  }
 }
 
 // ── Generate Code — writes to Firestore codes collection ──────────────
