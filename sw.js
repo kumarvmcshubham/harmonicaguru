@@ -1,7 +1,7 @@
 // sw.js
 // HarmonicaGuru — Service Worker
 
-const CACHE_NAME = 'harmonicaguru-v13';
+const CACHE_NAME = 'harmonicaguru-v14';
 const BASE = '/harmonicaguru';
 
 const SHELL_FILES = [

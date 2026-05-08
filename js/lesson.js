@@ -698,20 +698,39 @@ function buildLessonProgressStrip(notes) {
   const strip = document.getElementById('lessonProgressStrip');
   if (!strip) return;
   strip.innerHTML = '';
+
+  // Legend
+  const legend = document.createElement('div');
+  legend.style.cssText = 'width:100%;text-align:center;font-size:0.6rem;color:#7A8FA6;font-family:"DM Sans",sans-serif;margin-bottom:6px;letter-spacing:0.5px';
+  legend.textContent = 'B = Blow  ·  D = Draw';
+  strip.appendChild(legend);
+
+  // Chips row
+  const row = document.createElement('div');
+  row.style.cssText = 'display:flex;justify-content:center;gap:6px;flex-wrap:wrap';
+
   notes.forEach((note, i) => {
+    const holeNum  = harmonicaType === 'tower' ? (note.towerHole || note.hole) : note.hole;
+    const isBlow   = note.bd.includes('Blow');
+    const holeCode = `${holeNum}${isBlow ? 'B' : 'D'}`;
+    const arrow    = isBlow ? '↑' : '↓';
+
     const dot = document.createElement('div');
     dot.className = 'strip-dot' + (i === 0 ? ' current' : '');
     dot.innerHTML = `
       <span class="strip-sg">${note.sg.replace(/[',]/g, '')}</span>
-      <span class="strip-bd">${note.bd.includes('Blow') ? '↑' : '↓'}</span>
+      <span class="strip-bd">${arrow}</span>
+      <span class="strip-hole">${holeCode}</span>
     `;
-    strip.appendChild(dot);
+    row.appendChild(dot);
   });
+
+  strip.appendChild(row);
 }
 
 function highlightLessonStrip(idx, cls) {
   document.querySelectorAll('#lessonProgressStrip .strip-dot').forEach((d, i) => {
-    d.classList.remove('current','ref');
+    d.classList.remove('current', 'ref', 'clean', 'sloppy', 'wrong');
     if (i === idx) d.classList.add(cls);
   });
 }
