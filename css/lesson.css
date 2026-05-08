@@ -177,8 +177,8 @@
 .strip-dot {
   flex-shrink: 0;
   width: 36px;
-  min-height: 44px;
-  border-radius: 10px;
+  height: 36px;
+  border-radius: 50%;
   background: var(--navy3);
   border: 1px solid rgba(255,255,255,0.1);
   display: flex;
@@ -187,11 +187,10 @@
   justify-content: center;
   gap: 1px;
   transition: all 0.2s;
-  padding: 4px 2px;
 }
 .strip-dot.current {
-  width: 40px;
-  min-height: 48px;
+  width: 42px;
+  height: 42px;
   background: var(--saffron);
   border-color: var(--saffron);
   box-shadow: 0 0 12px rgba(244,96,12,0.5);
@@ -208,18 +207,12 @@
   line-height: 1;
 }
 .strip-bd {
-  font-size: 0.5rem;
+  font-size: 0.42rem;
   color: rgba(255,255,255,0.7);
   line-height: 1;
+  letter-spacing: 0.3px;
 }
-.strip-hole {
-  font-size: 0.48rem;
-  color: rgba(255,255,255,0.55);
-  line-height: 1;
-  font-family: var(--font-b);
-}
-.strip-dot.current .strip-bd  { color: rgba(255,255,255,0.9); }
-.strip-dot.current .strip-hole { color: rgba(255,255,255,0.75); }
+.strip-dot.current .strip-bd { color: rgba(255,255,255,0.9); }
 
 /* ── ACTION BUTTONS ── */
 .action-btns {
